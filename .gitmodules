@@ -1,0 +1,3 @@
+[submodule "wordcab-transcribe"]
+	path = wordcab-transcribe
+	url = https://github.com/Wordcab/wordcab-transcribe.git
