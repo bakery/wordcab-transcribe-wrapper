@@ -1,3 +1,37 @@
 services:
   wordcab-transcribe:
     build: ./wordcab-transcribe
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    shm_size: "1g"
+    ports:
+      - 5001:5001
+    volumes:
+      - ~/.cache:/root/.cache
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+  worker:
+    build: ./worker
+    depends_on:
+      wordcab-transcribe:
+        condition: service_healthy
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 3s
+        max_attempts: 5
+        window: 60s
+    environment:
+      - WORDCAB_TRANSCRIBE_SERVER=http://localhost:5001
+    volumes:
+      - ./audio:/home/app/audio
+      - ./transcriptions:/home/app/transcriptions
