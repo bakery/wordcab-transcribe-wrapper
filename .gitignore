@@ -1,3 +1,4 @@
 audio/*.wav
 audio/*.mp3
 transcriptions/*.json
+.DS_Store
